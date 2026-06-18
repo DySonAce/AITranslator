@@ -1,0 +1,38 @@
+# PyInstaller & Builds
+dist/
+build/
+*.spec
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints
+.venv/
+venv/
+ENV/
+env/
+
+# Logs and Debug
+*.log
+stderr_log.txt
+crash_log.txt
+test_ipc_result.txt
+test_success.txt
+
+# Local configurations & tools
+.agents/
+.codegraph/
+.gemini/
+
+# OS temporary files
+.DS_Store
+Thumbs.db
+
+# Editor configurations
+.vscode/
+.idea/
+
+# Compiled PyInstaller binaries
+_internal/
