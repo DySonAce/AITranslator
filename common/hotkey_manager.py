@@ -14,6 +14,8 @@ class GlobalHotkeyManager(QObject):
     hotkeyDisplayChanged = Signal(str)
     hotkeyChanged = Signal(str)
     tempHotkeyDisplayChanged = Signal(str)
+    requestSave = Signal()
+    requestCancel = Signal()
 
     def __init__(self, default_hotkey="win+shift+d"):
         super().__init__()
@@ -24,6 +26,18 @@ class GlobalHotkeyManager(QObject):
         self._rec_keys = set()
         self._hook_callback_ref = None
         self._hotkey_handle = None
+        self.requestSave.connect(self._on_request_save)
+        self.requestCancel.connect(self._on_request_cancel)
+
+    @Slot()
+    def _on_request_save(self):
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(10, self.save_interactive_record)
+
+    @Slot()
+    def _on_request_cancel(self):
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(10, self.cancel_interactive_record)
 
     @property
     def isRecording(self):
@@ -118,8 +132,7 @@ class GlobalHotkeyManager(QObject):
 
         if event.event_type == keyboard.KEY_DOWN:
             if name == "esc" and not any(m in self._rec_keys for m in modifiers):
-                from PySide6.QtCore import QTimer
-                QTimer.singleShot(10, self.cancel_interactive_record)
+                self.requestCancel.emit()
                 return
             self._rec_keys.add(name)
             temp_combo = "+".join(self._rec_keys)
@@ -128,8 +141,7 @@ class GlobalHotkeyManager(QObject):
 
             if name not in modifiers:
                 self._temp_hotkey = temp_combo
-                from PySide6.QtCore import QTimer
-                QTimer.singleShot(10, self.save_interactive_record)
+                self.requestSave.emit()
         elif event.event_type == keyboard.KEY_UP:
             if name in self._rec_keys:
                 self._rec_keys.remove(name)
