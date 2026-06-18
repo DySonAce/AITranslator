@@ -83,6 +83,9 @@ class GlobalHotkeyManager(QObject):
         # Fix stuck keys by explicitly releasing modifiers
         try:
             keyboard.release('shift')
+            keyboard.release('win')
+            keyboard.release('left win')
+            keyboard.release('right win')
             keyboard.release('windows')
             keyboard.release('alt')
             keyboard.release('ctrl')

@@ -2196,6 +2196,11 @@ class AppBackend(QObject):
             _log("[check_hotkey] ensuring models loaded...")
             self._ensure_models_loaded(self._start_snip)
 
+    def _on_busy_timeout(self):
+        if self.is_busy:
+            print("[主線程] 警告：檢測到翻譯/框選任務逾時 (15秒) 未完成，強制執行 _reset_all() 重置狀態", flush=True)
+            self._reset_all()
+
     # Screenshot Area Selection (PySide6) / 螢幕截圖區域框選 (PySide6)
 
     def _start_snip(self):
@@ -2203,6 +2208,17 @@ class AppBackend(QObject):
         try:
             self.is_busy = True
             self._set_status("背景處理中...", "#f9e2af")
+            
+            # 啟動 15 秒安全防護定時器，防範任何非同步工作流卡死導致 is_busy 被永久鎖定
+            if hasattr(self, '_busy_watchdog_timer'):
+                try: self._busy_watchdog_timer.stop()
+                except: pass
+            from PySide6.QtCore import QTimer
+            self._busy_watchdog_timer = QTimer(self)
+            self._busy_watchdog_timer.setSingleShot(True)
+            self._busy_watchdog_timer.timeout.connect(self._on_busy_timeout)
+            self._busy_watchdog_timer.start(15000) # 15 秒
+            
             _log("[_start_snip] creating SnippingWidget...")
 
             self.snipping_widget = SnippingWidget(self)
@@ -2615,6 +2631,9 @@ class AppBackend(QObject):
             print(f"[Show List Result] Failed: {e}")
 
     def _reset_all(self):
+        if hasattr(self, '_busy_watchdog_timer'):
+            try: self._busy_watchdog_timer.stop()
+            except: pass
         if hasattr(self, "jobs"):
             with self.jobs_lock:
                 jobs_list = list(self.jobs.items())
