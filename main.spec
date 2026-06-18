@@ -81,11 +81,14 @@ if conda_lib_bin.exists():
 
 
 # Add ALL NVIDIA CUDA/cuDNN DLLs for the heavy GPU build
-nvidia_dir = Path(r"C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\nvidia")
-if nvidia_dir.exists():
-    print("Found NVIDIA package path in global Python site-packages, scanning DLLs...")
-    for dll in nvidia_dir.rglob("*.dll"):
-        binaries.append((str(dll), '.'))
+if os.environ.get("AITRANS_GPU_BUILD") == "1":
+    nvidia_dir = Path(r"C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\nvidia")
+    if nvidia_dir.exists():
+        print("Found NVIDIA package path in global Python site-packages, scanning DLLs...")
+        for dll in nvidia_dir.rglob("*.dll"):
+            binaries.append((str(dll), '.'))
+else:
+    print("Skipping NVIDIA package path for CPU/Adaptive build...")
 
 from PyInstaller.utils.hooks import copy_metadata
 

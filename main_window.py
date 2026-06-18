@@ -2029,6 +2029,23 @@ class AppBackend(QObject):
         """Switch to the specified mode when mode hotkey is pressed"""
         print(f"[模式快捷鍵] 切換至 {mode_name} 模式", flush=True)
         self.mode = mode_name
+        
+        # 激活主窗口，防止網頁失去焦點時 Chromium JS 渲染被節流導致 UI 不更新
+        try:
+            from PySide6.QtWidgets import QApplication, QMainWindow
+            from PySide6.QtWebEngineWidgets import QWebEngineView
+            for w in QApplication.topLevelWidgets():
+                if isinstance(w, QMainWindow):
+                    w.show()
+                    w.raise_()
+                    w.activateWindow()
+                    central = w.centralWidget()
+                    if isinstance(central, QWebEngineView):
+                        central.page().runJavaScript(f"console.log('[Backend] Mode switched to {mode_name} by hotkey.');")
+                    break
+        except Exception as e:
+            print(f"[模式快捷鍵] 喚醒主窗口失敗: {e}")
+
         if getattr(self, '_mode_sound_enabled', False):
             try:
                 import winsound
