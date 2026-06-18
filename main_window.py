@@ -25,6 +25,7 @@ def global_excepthook(exctype, value, tb):
 sys.excepthook = global_excepthook
 
 # Force disable proxies for whole process / 強制在行程層級停用網路代理，避免本地 127.0.0.1 請求被阻斷
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=CalculateWindowOcclusion"
 os.environ["QTWEBENGINE_DISABLE_PROXY"] = "1"
 os.environ["http_proxy"] = ""
 os.environ["https_proxy"] = ""
@@ -2030,21 +2031,18 @@ class AppBackend(QObject):
         print(f"[模式快捷鍵] 切換至 {mode_name} 模式", flush=True)
         self.mode = mode_name
         
-        # 激活主窗口，防止網頁失去焦點時 Chromium JS 渲染被節流導致 UI 不更新
+        # 在背景發送 JavaScript log 輔助更新，不強奪焦點
         try:
             from PySide6.QtWidgets import QApplication, QMainWindow
             from PySide6.QtWebEngineWidgets import QWebEngineView
             for w in QApplication.topLevelWidgets():
                 if isinstance(w, QMainWindow):
-                    w.show()
-                    w.raise_()
-                    w.activateWindow()
                     central = w.centralWidget()
                     if isinstance(central, QWebEngineView):
-                        central.page().runJavaScript(f"console.log('[Backend] Mode switched to {mode_name} by hotkey.');")
+                        central.page().runJavaScript(f"console.log('[Backend] Mode switched to {mode_name} by hotkey in background.');")
                     break
         except Exception as e:
-            print(f"[模式快捷鍵] 喚醒主窗口失敗: {e}")
+            pass
 
         if getattr(self, '_mode_sound_enabled', False):
             try:
