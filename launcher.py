@@ -4,6 +4,7 @@ import traceback
 import multiprocessing
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=CalculateWindowOcclusion"
 
 if __name__ == '__main__':
     import os

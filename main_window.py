@@ -1864,6 +1864,19 @@ class AppBackend(QObject):
             self._settings.sync()
             self.modeChanged.emit()
 
+            # 主動呼叫 React 暴露出的 updateMode 函數，確保在背景也能即時重繪更新 UI
+            try:
+                from PySide6.QtWidgets import QApplication, QMainWindow
+                from PySide6.QtWebEngineWidgets import QWebEngineView
+                for w in QApplication.topLevelWidgets():
+                    if isinstance(w, QMainWindow):
+                        central = w.centralWidget()
+                        if isinstance(central, QWebEngineView):
+                            central.page().runJavaScript(f"if(window.updateMode) window.updateMode('{val}');")
+                        break
+            except Exception as e:
+                pass
+
             # 3. Immediately release models
             print(f"[主線程] 偵測到模式切換至 {val}，立刻釋放模型資源", flush=True)
             self._do_unload_models()
@@ -2664,6 +2677,19 @@ class AppBackend(QObject):
         self.is_busy = False
         self.trigger_snip = False
         self._set_status("已複製到剪貼簿", "#a6e3a1")
+        
+        # 重置全域鍵盤修飾鍵狀態，防範粘滯鍵導致下次快捷鍵失效
+        try:
+            import keyboard
+            keyboard.release('shift')
+            keyboard.release('win')
+            keyboard.release('left win')
+            keyboard.release('right win')
+            keyboard.release('windows')
+            keyboard.release('alt')
+            keyboard.release('ctrl')
+        except:
+            pass
 
     # Helpers / 輔助函數
 
@@ -2923,7 +2949,7 @@ def main():
     
     class WebEnginePage(view.page().__class__):
         def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
-            msg = f"[JS] {message} (line {lineNumber})"
+            msg = f"[JS] {message} (line {lineNumber} in {sourceID})"
             print(msg)
 
     page = WebEnginePage(view)
