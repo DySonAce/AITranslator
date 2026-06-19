@@ -52,17 +52,22 @@ If you are using the pre-compiled version, simply run `AITranslator.exe` from th
 ### ⚡ Portable GPU Acceleration (Zero-Setup) / 便攜式 GPU 加速 (開箱即用，免安裝環境)
 
 > [!IMPORTANT]
-> **How to run on another computer / 如何在另一台電腦上直接使用 GPU 模式：**
-> - **Copy the entire directory:** You must copy the **entire folder** (including both `AITranslator.exe` and the `_internal/` subdirectory). Do **NOT** copy the `.exe` file alone.
-> - **Zero Dependency Setup:** The target computer does **NOT** need CUDA SDK or cuDNN installed manually. The bundled CUDA 12 runtime DLLs inside `_internal/` will handle GPU acceleration automatically.
-> - **NVIDIA Driver Requirement:** Ensure the target computer has an NVIDIA GPU and that the NVIDIA graphic drivers are updated to a version compatible with CUDA 12 (generally any driver version from 2024 or later works perfectly).
-> - **Automatic CPU Fallback:** If the computer lacks an NVIDIA GPU or proper drivers, the app will automatically and silently fall back to CPU mode.
+> **How to enable GPU mode (Release v1.1+) / 如何啟用 GPU 模式 (v1.1+)：**
+> - **Split Files Setup:** To bypass GitHub's 2GB file limit and prevent file corruption, the release is split into:
+>   1. **Main App:** `AITranslator-v1.1.zip` (~508MB)
+>   2. **GPU Dependencies:** `AITranslator-v1.1-GPU-Dependencies.zip` (~1.52GB)
+> - **Installation:** Download and extract both files. Copy all extracted DLL files from the GPU Dependencies package directly into the **`_internal/`** folder of the extracted Main App directory.
+> - **NVIDIA Driver Requirement (CUDA 13.1):** The target computer must have an NVIDIA GPU, and the NVIDIA graphics driver must be updated to version **`580.xx` or higher** (e.g. 591.xx+) to support CUDA 13.1. Otherwise, you will encounter a `CUDA failure 801 (cudaErrorNotSupported)` error.
+> - **Automatic CPU Fallback:** If the computer lacks an NVIDIA GPU or the drivers are outdated, the app will automatically and silently fall back to CPU mode.
 >
-> **如何在另一台電腦上直接使用 GPU 模式：**
-> - **必須複製整個資料夾**：請務必完整複製整個專案資料夾（**必須同時包含 `AITranslator.exe` 與整個 `_internal` 子目錄**），切勿單獨只複製一個 `.exe` 執行檔。
-> - **開箱即用，免手動安裝環境**：目標電腦**不需要**手動下載或安裝任何 CUDA Toolkit、CUDA SDK 或 cuDNN。程式會自動調用 `_internal/` 目錄內建的 CUDA 12 執行期 DLL 啟用 GPU 加速。
-> - **顯卡與驅動要求**：目標電腦配有 NVIDIA 顯示卡，且已安裝 NVIDIA 官方顯卡驅動程式（驅動版本建議更新至較新版本以支援 CUDA 12，一般 2024 年後的顯卡驅動即可完美相容）。
+> **如何在另一台電腦上啟用 GPU 模式：**
+> - **雙檔案組合安裝**：為了繞過 GitHub 單個檔案 2GB 的大小限制並防止損壞，版本已拆分為：
+>   1. **CPU 主程式**：`AITranslator-v1.1.zip` (~508MB)
+>   2. **GPU 依賴套件**：`AITranslator-v1.1-GPU-Dependencies.zip` (~1.52GB)
+> - **安裝方式**：下載並解壓兩個壓縮檔，將 GPU 依賴套件內的所有 DLL 檔案直接複製貼上到主程式的 **`_internal`** 資料夾中即可。
+> - **顯卡與驅動要求 (CUDA 13.1)**：目標電腦必須配有 NVIDIA 顯示卡，且 NVIDIA 顯示卡驅動程式必須更新至 **`580.xx` 或更高版本**（例如 591.xx 以上）以支援 CUDA 13.1。若驅動版本低於此限制，將會出現 `CUDA failure 801` 載入失敗錯誤。
 > - **自動降級 CPU**：若目標電腦偵測不到 NVIDIA 顯示卡或相容驅動程式，程式會自動無聲地降級至 **CPU 模式** 執行，確保隨時可用。
+
 
 ---
 
