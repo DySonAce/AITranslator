@@ -68,8 +68,23 @@ If you are using the pre-compiled version, simply run `AITranslator.exe` from th
 > - **顯卡與驅動要求 (CUDA 13.1)**：目標電腦必須配有 NVIDIA 顯示卡，且 NVIDIA 顯示卡驅動程式必須更新至 **`580.xx` 或更高版本**（例如 591.xx 以上）以支援 CUDA 13.1。若驅動版本低於此限制，將會出現 `CUDA failure 801` 載入失敗錯誤。
 > - **自動降級 CPU**：若目標電腦偵測不到 NVIDIA 顯示卡或相容驅動程式，程式會自動無聲地降級至 **CPU 模式** 執行，確保隨時可用。
 
+### ⚠️ Troubleshooting / 常見問題與排查
+
+> [!NOTE]
+> **Hotkey Unresponsiveness when System Windows are Focused / 當前台焦點為系統視窗時快捷鍵失效：**
+> - **The Issue:** Windows disables low-level keyboard hooks (user-mode hotkeys) when focusing on high-privilege system windows (e.g., **Task Manager**, Administrator command prompts, or UAC prompts) to prevent keylogging. Under these circumstances, hotkeys like capture or mode switching will have no response.
+> - **Solutions:**
+>   1. **Temporary Fix:** Simply click on your desktop or a normal application window to lose focus from Task Manager. The hotkeys will automatically work again.
+>   2. **Permanent Fix:** Right-click `AITranslator.exe` and select **"Run as administrator"**. This elevates the process integrity level to match Task Manager, allowing hotkeys to work even when Task Manager is focused.
+>
+> **當前台焦點為高權限視窗時快捷鍵與切換失效：**
+> - **問題原因**：當您點擊 **工作管理員**、以管理員身分執行的 CMD/PowerShell 視窗、或 UAC 系統提示框時，Windows 基於安全保護機制（UIPI），會強制封鎖所有一般權限程式的全域鍵盤監聽（防止密碼被竊取）。此時按下截圖或模式切換快捷鍵將沒有任何反應。
+> - **解決方法**：
+>   1. **臨時解決**：只需點擊一下桌面、瀏覽器或其他一般程式，讓工作管理員失去焦點，快捷鍵即會立刻恢復作用。
+>   2. **永久解決**：對 `AITranslator.exe` 按右鍵，選擇 **「以系統管理員身分執行」**。程式提升至高權限後，即可在工作管理員前台焦點下正常觸發快捷鍵與模式切換。
 
 ---
+
 
 ## 🛠️ Developer Guide / 開發者指南
 
