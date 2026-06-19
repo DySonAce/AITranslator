@@ -86,7 +86,7 @@ if os.environ.get("AITRANS_GPU_BUILD") == "1":
     if nvidia_dir.exists():
         print("Found NVIDIA package path in global Python site-packages, scanning DLLs...")
         for dll in nvidia_dir.rglob("*.dll"):
-            binaries.append((str(dll), '.'))
+            datas.append((str(dll), '.'))
 else:
     print("Skipping NVIDIA package path for CPU/Adaptive build...")
 

@@ -3,6 +3,13 @@ import os
 import traceback
 import multiprocessing
 
+# Add PyInstaller package directory to DLL search path for CUDA loading on other machines
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    os.environ["PATH"] = sys._MEIPASS + os.pathsep + os.environ.get("PATH", "")
+    if hasattr(os, 'add_dll_directory'):
+        try: os.add_dll_directory(sys._MEIPASS)
+        except Exception: pass
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=CalculateWindowOcclusion"
 
