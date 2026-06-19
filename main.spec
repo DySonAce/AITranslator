@@ -82,11 +82,33 @@ if conda_lib_bin.exists():
 
 # Add ALL NVIDIA CUDA/cuDNN DLLs for the heavy GPU build
 if os.environ.get("AITRANS_GPU_BUILD") == "1":
+    # 1. Add cuDNN DLLs from global Python site-packages
     nvidia_dir = Path(r"C:\Users\user\AppData\Local\Programs\Python\Python312\Lib\site-packages\nvidia")
     if nvidia_dir.exists():
         print("Found NVIDIA package path in global Python site-packages, scanning DLLs...")
         for dll in nvidia_dir.rglob("*.dll"):
             datas.append((str(dll), '.'))
+            
+    # 2. Add CUDA 13.1 Toolkit DLLs (needed by onnxruntime-gpu 1.27.0)
+    cuda_tk_dir = Path(r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.1")
+    if cuda_tk_dir.exists():
+        print("Found CUDA 13.1 Toolkit path, scanning DLLs...")
+        for dll in cuda_tk_dir.rglob("*.dll"):
+            base = dll.name.lower()
+            if any(x in base for x in ['cublas', 'cudart', 'cufft', 'curand', 'cusparse', 'cusolver', 'nvjitlink']):
+                datas.append((str(dll), '.'))
+                print(f"Adding CUDA Toolkit DLL: {dll.name}")
+                
+    # 3. Add zlibwapi.dll (essential for cuDNN 9 load on Windows)
+    zlib_candidates = [
+        r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.1\bin\zlibwapi.dll",
+        r"C:\Program Files\ASUS\ARMOURY CRATE Lite Service\DeviceServicePlugIn\zlibwapi.dll",
+    ]
+    for candidate in zlib_candidates:
+        if os.path.exists(candidate):
+            datas.append((candidate, '.'))
+            print(f"Adding zlibwapi.dll from: {candidate}")
+            break
 else:
     print("Skipping NVIDIA package path for CPU/Adaptive build...")
 
@@ -142,7 +164,6 @@ exe = EXE(
 
 # Filter binaries to exclude version 13 CUDA DLLs and unused PySide6 DLLs
 excluded_bin_prefixes = [
-    'cublas64_13', 'cublasLt64_13', 'cufft64_12', 'cufftw64_12',
     'Qt63D', 'Qt6Charts', 'Qt6DataVisualization', 'Qt6Graphs',
     'Qt6Location', 'Qt6Multimedia', 'Qt6Pdf', 'Qt6Quick3D',
     'Qt6Scxml', 'Qt6Sensors', 'Qt6SerialPort', 'Qt6SpatialAudio',
